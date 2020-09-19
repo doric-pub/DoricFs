@@ -6,10 +6,12 @@ export type Stats = {};
 
 export function fs(context: BridgeContext) {
   return {
-    getDocumentsPath: (options?: { external?: boolean }) => {
-      return context.callNative("fs", "getDocumentsPath", options) as Promise<
-        PathLike
-      >;
+    getDocumentsDir: (options?: { external?: boolean }) => {
+      return context.callNative(
+        "fs",
+        "getDocumentsDir",
+        options || {}
+      ) as Promise<PathLike>;
     },
 
     exists: (path: PathLike) => {
@@ -29,11 +31,11 @@ export function fs(context: BridgeContext) {
     },
 
     mkdir: (path: PathLike) => {
-      return context.callNative("fs", "mkdir", path) as Promise<string>;
+      return context.callNative("fs", "mkdir", path) as Promise<boolean>;
     },
 
-    readdir: (path: PathLike) => {
-      return context.callNative("fs", "readdir", path) as Promise<string[]>;
+    readDir: (path: PathLike) => {
+      return context.callNative("fs", "readDir", path) as Promise<string[]>;
     },
 
     readFile: (path: PathLike) => {
@@ -44,18 +46,25 @@ export function fs(context: BridgeContext) {
       return context.callNative("fs", "writeFile", {
         path,
         content,
-      }) as Promise<number>;
+      }) as Promise<void>;
     },
 
     appendFile: (path: PathLike, content: string) => {
       return context.callNative("fs", "appendFile", {
         path,
         content,
-      }) as Promise<number>;
+      }) as Promise<void>;
     },
 
     delete: (path: PathLike) => {
       return context.callNative("fs", "delete", path) as Promise<boolean>;
+    },
+
+    rename: (src: PathLike, dest: PathLike) => {
+      return context.callNative("fs", "rename", {
+        src,
+        dest,
+      }) as Promise<boolean>;
     },
   };
 }
