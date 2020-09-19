@@ -7,7 +7,8 @@
 
 #import "DoricFsPlugin.h"
 
-@interface DoricFsPlugin ()
+@interface DoricFsPlugin () <UIDocumentPickerDelegate, UIDocumentInteractionControllerDelegate>
+@property(nonatomic, strong) DoricPromise *currentPromise;
 @end
 
 @implementation DoricFsPlugin
@@ -177,6 +178,32 @@
             [promise resolve:@(isSuccess)];
         }
     });
+}
+
+- (void)choose:(NSDictionary *)dic withPromise:(DoricPromise *)promise {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.currentPromise = promise;
+        NSArray *uti = dic[@"uniformTypeIdentifiers"];
+        UIDocumentPickerViewController *documentPickerViewController = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[uti]
+                                                                                                                              inMode:UIDocumentPickerModeImport];
+        documentPickerViewController.delegate = self;
+        [((UIViewController *) (self.doricContext.navigator)).navigationController presentViewController:documentPickerViewController
+                                                                                                animated:YES
+                                                                                              completion:nil];
+    });
+}
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray <NSURL *> *)urls {
+    NSURL *url = urls.firstObject;
+    NSFileCoordinator *fileCoordinator = [[NSFileCoordinator alloc] init];
+    NSError *error = nil;
+    [fileCoordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingWithoutChanges error:&error byAccessor:^(NSURL *newURL) {
+        [self.currentPromise resolve:newURL.absoluteString];
+    }];
+}
+
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
+    [self.currentPromise reject:@"Cancelled"];
 }
 
 

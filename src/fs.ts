@@ -66,5 +66,12 @@ export function fs(context: BridgeContext) {
         dest,
       }) as Promise<boolean>;
     },
+
+    choose: (options: {
+      uniformTypeIdentifiers: string[];
+      mimeType: string;
+    }) => {
+      return context.callNative("fs", "choose", options) as Promise<string>;
+    },
   };
 }

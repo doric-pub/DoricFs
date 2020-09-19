@@ -15,6 +15,8 @@
  */
 package pub.doric.extension.fs;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
 
@@ -28,12 +30,8 @@ import org.json.JSONArray;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import pub.doric.DoricContext;
 import pub.doric.extension.bridge.DoricMethod;
@@ -48,6 +46,8 @@ import pub.doric.plugin.DoricJavaPlugin;
  */
 @DoricPlugin(name = "fs")
 public class DoricFsPlugin extends DoricJavaPlugin {
+    private DoricPromise promise;
+
     public DoricFsPlugin(DoricContext doricContext) {
         super(doricContext);
     }
@@ -239,6 +239,29 @@ public class DoricFsPlugin extends DoricJavaPlugin {
             promise.resolve(new JavaValue(new File(src.value()).renameTo(new File(dest.value()))));
         } catch (Exception e) {
             promise.reject(new JavaValue(e.getLocalizedMessage()));
+        }
+    }
+
+    @DoricMethod
+    public void choose(JSObject jsObject, DoricPromise promise) {
+        JSValue value = jsObject.getProperty("mimeType");
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        if (value.isString()) {
+            intent.setType(value.toString());
+        }
+        getDoricContext().startActivityForResult(intent, 10001);
+        this.promise = promise;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 10001) {
+            if (resultCode == Activity.RESULT_OK) {
+                promise.resolve(new JavaValue(data.getDataString()));
+            } else {
+                promise.reject(new JavaValue("Cancelled"));
+            }
         }
     }
 }
