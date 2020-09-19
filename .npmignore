@@ -1,0 +1,6 @@
+android/
+iOS/
+.vscode/
+node_modules/
+bundle/
+package-lock.json
