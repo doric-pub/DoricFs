@@ -1,1 +1,1 @@
-export default ['src/DoricFs']
+export * from "./src/fs";

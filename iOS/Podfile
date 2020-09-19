@@ -15,4 +15,5 @@ target 'DoricFs' do
   # Pods for DoricFs
   pod 'DoricCore', "#{version}"
   pod 'DoricDevkit', "#{version}"
+  pod 'DoricFs', :path => '../'
 end

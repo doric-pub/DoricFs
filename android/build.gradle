@@ -25,3 +25,12 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+def model = new File(project.rootDir.getParent() + File.separator + "version")
+println("Current library version is " + model.text)
+ext {
+    Version = model.text.trim()
+}
+
+task publish dependsOn(":fs:uploadArchives") {
+    println "DoricFS published"
+}
