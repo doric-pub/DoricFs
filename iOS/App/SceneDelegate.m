@@ -7,11 +7,14 @@
 
 #endif
 
+#import <DoricFs/DoricFsLibrary.h>
+
 @interface SceneDelegate ()
 @end
 
 @implementation SceneDelegate
 - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
+    [Doric registerLibrary:[DoricFsLibrary new]];
     UIWindowScene *windowScene = (UIWindowScene *) scene;
     NSString *bundleName = @"DoricFs";
     DoricViewController *doricViewController = [[DoricViewController alloc] initWithSource:[NSString stringWithFormat:@"assets://src/%@.js", bundleName]
