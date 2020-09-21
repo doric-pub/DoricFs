@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p .&& rollup -c",
     "dev": "tsc -w -p . & rollup -c -w",
-    "clean": "rm -rf build && rm -rf bundle"
+    "clean": "rm -rf build && rm -rf bundle",
+    "prepublish": "npm run build"
   },
   "license": "Apache-2.0",
   "dependencies": {
