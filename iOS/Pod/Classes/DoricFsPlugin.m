@@ -184,7 +184,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.currentPromise = promise;
         NSArray *uti = dic[@"uniformTypeIdentifiers"];
-        UIDocumentPickerViewController *documentPickerViewController = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[uti]
+        UIDocumentPickerViewController *documentPickerViewController = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:uti
                                                                                                                               inMode:UIDocumentPickerModeImport];
         documentPickerViewController.delegate = self;
         [((UIViewController *) (self.doricContext.navigator)).navigationController presentViewController:documentPickerViewController
