@@ -16,7 +16,9 @@
 package pub.doric.extension.fs;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
@@ -32,7 +34,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 
+import pub.doric.Doric;
 import pub.doric.DoricContext;
 import pub.doric.extension.bridge.DoricMethod;
 import pub.doric.extension.bridge.DoricPlugin;
@@ -147,28 +151,36 @@ public class DoricFsPlugin extends DoricJavaPlugin {
 
     @DoricMethod
     public void readFile(JSString path, DoricPromise promise) {
-        File file = new File(path.value());
-        if (!file.exists()) {
-            promise.reject(new JavaValue(String.format("File %s does not exists", file.getAbsolutePath())));
-            return;
-        }
-        if (!file.isFile()) {
-            promise.reject(new JavaValue(String.format("File %s is not file", file.getAbsolutePath())));
-            return;
-        }
-        FileInputStream fileInputStream = null;
+        String pathValue = path.value();
+
+        InputStream inputStream = null;
         try {
-            fileInputStream = new FileInputStream(file);
-            byte[] buffer = new byte[fileInputStream.available()];
-            fileInputStream.read(buffer);
+            if (pathValue.startsWith("content://")) {
+                Uri uri = Uri.parse(pathValue);
+                ContentResolver resolver = Doric.application().getContentResolver();
+                inputStream = resolver.openInputStream(uri);
+            } else {
+                File file = new File(pathValue);
+                if (!file.exists()) {
+                    promise.reject(new JavaValue(String.format("File %s does not exists", file.getAbsolutePath())));
+                    return;
+                }
+                if (!file.isFile()) {
+                    promise.reject(new JavaValue(String.format("File %s is not file", file.getAbsolutePath())));
+                    return;
+                }
+                inputStream = new FileInputStream(file);
+            }
+            byte[] buffer = new byte[inputStream.available()];
+            inputStream.read(buffer);
             String result = new String(buffer);
             promise.resolve(new JavaValue(result));
         } catch (Exception e) {
             promise.reject(new JavaValue(e.getLocalizedMessage()));
         } finally {
-            if (fileInputStream != null) {
+            if (inputStream != null) {
                 try {
-                    fileInputStream.close();
+                    inputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
