@@ -96,18 +96,29 @@
 
 - (void)readFile:(NSString *)path withPromise:(DoricPromise *)promise {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        BOOL isDirectory = NO;
-        BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
-
-        if (exists) {
-            if (!isDirectory) {
-                NSData *data = [[NSFileManager defaultManager] contentsAtPath:path];
-                [promise resolve:[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
+        if ([path hasPrefix:@"file://"]) {
+            NSError *error;
+            NSURL *URL = [NSURL URLWithString:path];
+            NSString *content = [NSString stringWithContentsOfURL:URL encoding:NSUTF8StringEncoding error:&error];
+            if (error) {
+                [promise reject:error.localizedDescription];
             } else {
-                [promise reject:[NSString stringWithFormat:@"File %@ is not file", path]];
+                [promise resolve:content];
             }
         } else {
-            [promise reject:[NSString stringWithFormat:@"File %@ does not exist", path]];
+            BOOL isDirectory = NO;
+            BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
+
+            if (exists) {
+                if (!isDirectory) {
+                    NSData *data = [[NSFileManager defaultManager] contentsAtPath:path];
+                    [promise resolve:[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
+                } else {
+                    [promise reject:[NSString stringWithFormat:@"File %@ is not file", path]];
+                }
+            } else {
+                [promise reject:[NSString stringWithFormat:@"File %@ does not exist", path]];
+            }
         }
     });
 }
