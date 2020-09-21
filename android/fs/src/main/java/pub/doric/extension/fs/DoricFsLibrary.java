@@ -18,6 +18,7 @@ package pub.doric.extension.fs;
 import pub.doric.DoricComponent;
 import pub.doric.DoricLibrary;
 import pub.doric.DoricRegistry;
+import pub.doric.loader.DoricJSLoaderManager;
 
 /**
  * @Description: pub.doric.extension.fs
@@ -28,6 +29,7 @@ import pub.doric.DoricRegistry;
 public class DoricFsLibrary extends DoricLibrary {
     @Override
     public void load(DoricRegistry registry) {
+        DoricJSLoaderManager.getInstance().addJSLoader(new DoricFileLoader());
         registry.registerNativePlugin(DoricFsPlugin.class);
     }
 }
