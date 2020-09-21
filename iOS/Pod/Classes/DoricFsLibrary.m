@@ -11,7 +11,7 @@
 
 @implementation DoricFsLibrary
 - (void)load:(DoricRegistry *)registry {
-    [[DoricJSLoaderManager instance] addJSLoader:[DoricFileLoader new];
+    [[DoricJSLoaderManager instance] addJSLoader:[DoricFileLoader new]];
     [registry registerNativePlugin:DoricFsPlugin.class withName:@"fs"];
 }
 @end
