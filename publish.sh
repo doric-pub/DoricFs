@@ -17,7 +17,7 @@ git commit -m "Modify version file ${CURRENT_VERSION}"
 npm version $CURRENT_VERSION --allow-same-version
 
 ## iOS
-sed -i "" "s/\(version[ ]*= \)'[0-9 \.]*'/\1'$CURRENT_VERSION'/g" $CURRENT_DIR/DoricSQLite.podspec
+sed -i "" "s/\(version[ ]*= \)'[0-9 \.]*'/\1'$CURRENT_VERSION'/g" $CURRENT_DIR/DoricFs.podspec
 
 echo "Commit changes"
 git add .
@@ -36,4 +36,4 @@ echo "Publish Android"
 cd $CURRENT_DIR/android && ./gradlew clean publish
 
 echo "Publish iOS"
-cd $CURRENT_DIR && pod trunk push DoricSQLite.podspec --allow-warnings
+cd $CURRENT_DIR && pod trunk push DoricFs.podspec --allow-warnings
