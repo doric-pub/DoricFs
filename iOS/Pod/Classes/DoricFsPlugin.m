@@ -24,7 +24,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *path = paramPath;
         if ([path hasPrefix:@"assets"]) {
-            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+            path = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
         }
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
         [promise resolve:@(exists)];
@@ -36,7 +36,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *path = paramPath;
         if ([path hasPrefix:@"assets"]) {
-            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+            path = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
         }
         NSError *error;
         NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
@@ -53,7 +53,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *path = paramPath;
         if ([path hasPrefix:@"assets"]) {
-            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+            path = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
         }
         BOOL isDirectory = NO;
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
@@ -69,7 +69,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *path = paramPath;
         if ([path hasPrefix:@"assets"]) {
-            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+            path = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
         }
         BOOL isDirectory = NO;
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
@@ -92,7 +92,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *path = paramPath;
         if ([path hasPrefix:@"assets"]) {
-            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+            path = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
         }
         BOOL isDirectory = NO;
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
@@ -127,7 +127,7 @@
             }
         } else {
             if ([path hasPrefix:@"assets"]) {
-                path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+                path = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
             }
             BOOL isDirectory = NO;
             BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
@@ -220,7 +220,7 @@
         NSString *src = dic[@"src"];
         NSString *dest = dic[@"dest"];
         if ([src hasPrefix:@"assets"]) {
-            src = [src stringByAppendingPathComponent:[src substringFromIndex:@"assets://".length]];
+            src = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:[src substringFromIndex:@"assets://".length]];
         }
         BOOL isSuccess = [[NSFileManager defaultManager] copyItemAtPath:src toPath:dest error:&error];
         if (error) {
