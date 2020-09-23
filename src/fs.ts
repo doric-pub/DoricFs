@@ -67,6 +67,13 @@ export function fs(context: BridgeContext) {
       }) as Promise<boolean>;
     },
 
+    copy: (src: PathLike, dest: PathLike) => {
+      return context.callNative("fs", "copy", {
+        src,
+        dest,
+      }) as Promise<boolean>;
+    },
+
     choose: (options: {
       uniformTypeIdentifiers: string[];
       mimeType: string;

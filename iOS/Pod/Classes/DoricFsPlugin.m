@@ -20,16 +20,24 @@
     });
 }
 
-- (void)exists:(NSString *)path withPromise:(DoricPromise *)promise {
+- (void)exists:(NSString *)paramPath withPromise:(DoricPromise *)promise {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *path = paramPath;
+        if ([path hasPrefix:@"assets"]) {
+            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+        }
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
         [promise resolve:@(exists)];
     });
 }
 
 
-- (void)stat:(NSString *)path withPromise:(DoricPromise *)promise {
+- (void)stat:(NSString *)paramPath withPromise:(DoricPromise *)promise {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *path = paramPath;
+        if ([path hasPrefix:@"assets"]) {
+            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+        }
         NSError *error;
         NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
         if (error) {
@@ -41,8 +49,12 @@
 }
 
 
-- (void)isFile:(NSString *)path withPromise:(DoricPromise *)promise {
+- (void)isFile:(NSString *)paramPath withPromise:(DoricPromise *)promise {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *path = paramPath;
+        if ([path hasPrefix:@"assets"]) {
+            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+        }
         BOOL isDirectory = NO;
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
         if (exists) {
@@ -53,8 +65,12 @@
     });
 }
 
-- (void)isDirectory:(NSString *)path withPromise:(DoricPromise *)promise {
+- (void)isDirectory:(NSString *)paramPath withPromise:(DoricPromise *)promise {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *path = paramPath;
+        if ([path hasPrefix:@"assets"]) {
+            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+        }
         BOOL isDirectory = NO;
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
         if (exists) {
@@ -72,11 +88,14 @@
     });
 }
 
-- (void)readDir:(NSString *)path withPromise:(DoricPromise *)promise {
+- (void)readDir:(NSString *)paramPath withPromise:(DoricPromise *)promise {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *path = paramPath;
+        if ([path hasPrefix:@"assets"]) {
+            path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+        }
         BOOL isDirectory = NO;
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
-
         if (exists) {
             if (isDirectory) {
                 NSArray <NSString *> *dirArray = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
@@ -94,8 +113,9 @@
 }
 
 
-- (void)readFile:(NSString *)path withPromise:(DoricPromise *)promise {
+- (void)readFile:(NSString *)paramPath withPromise:(DoricPromise *)promise {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *path = paramPath;
         if ([path hasPrefix:@"file://"]) {
             NSError *error;
             NSURL *URL = [NSURL URLWithString:path];
@@ -106,6 +126,9 @@
                 [promise resolve:content];
             }
         } else {
+            if ([path hasPrefix:@"assets"]) {
+                path = [path stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+            }
             BOOL isDirectory = NO;
             BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
 
@@ -183,6 +206,23 @@
         NSString *src = dic[@"src"];
         NSString *dest = dic[@"dest"];
         BOOL isSuccess = [[NSFileManager defaultManager] moveItemAtPath:src toPath:dest error:&error];
+        if (error) {
+            [promise reject:error.localizedDescription];
+        } else {
+            [promise resolve:@(isSuccess)];
+        }
+    });
+}
+
+- (void)copy:(NSDictionary *)dic withPromise:(DoricPromise *)promise {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSError *error;
+        NSString *src = dic[@"src"];
+        NSString *dest = dic[@"dest"];
+        if ([src hasPrefix:@"assets"]) {
+            src = [src stringByAppendingPathComponent:[src substringFromIndex:@"assets://".length]];
+        }
+        BOOL isSuccess = [[NSFileManager defaultManager] copyItemAtPath:src toPath:dest error:&error];
         if (error) {
             [promise reject:error.localizedDescription];
         } else {
