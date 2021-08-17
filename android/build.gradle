@@ -1,36 +1,46 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import groovy.json.JsonSlurper
+
+def model = new JsonSlurper().parse(new File(project.getProjectDir().parent + File.separator + "package.json"))
+def doricSDKVersion = model.dependencies.doric.replace("^", "").replace(">=","")
+
+println("Doric Version:" + doricSDKVersion)
 
 buildscript {
     repositories {
+        mavenCentral()
         google()
         jcenter()
-
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
-allprojects {
+rootProject.allprojects {
     repositories {
+        mavenCentral()
         google()
         jcenter()
-        maven { url 'https://jitpack.io' }
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
-def model = new File(project.rootDir.getParent() + File.separator + "version")
-println("Current library version is " + model.text)
-ext {
-    Version = model.text.trim()
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 29
+
+    sourceSets {
+        main.assets.srcDirs += "../dist"
+    }
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+    }
 }
 
-task publish dependsOn(":fs:uploadArchives") {
-    println "DoricFS published"
+dependencies {
+    api "pub.doric:core:$doricSDKVersion"
 }

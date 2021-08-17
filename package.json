@@ -4,14 +4,17 @@
   "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p .&& rollup -c",
-    "dev": "tsc -w -p . & rollup -c -w",
-    "clean": "rm -rf build && rm -rf bundle",
+    "build": "doric build",
+    "dev": "cd example && doric dev",
+    "clean": "cd example && doric clean",
+    "android": "cd example && doric run android",
+    "ios": "cd example && doric run iOS",
     "prepublish": "npm run build"
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "doric": "^0.6.1",
+    "doric": ">=0.8.26",
+    "doric-cli": ">=0.8.26",
     "reflect-metadata": "^0.1.13",
     "rollup": "^1.27.14",
     "tslib": "^1.10.0",

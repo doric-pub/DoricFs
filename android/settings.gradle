@@ -1,3 +1,0 @@
-include ':fs'
-include ':app'
-rootProject.name='DoricFs'

@@ -2,5 +2,5 @@ android/
 iOS/
 .vscode/
 node_modules/
-bundle/
+example/
 package-lock.json
