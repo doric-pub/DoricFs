@@ -17,6 +17,6 @@ Pod::Spec.new do |s|
   
     s.source_files = 'iOS/Classes/**/*'
     s.resource     =  "dist/**/*"
-    s.public_header_files = 'iOS/Pod/Classes/**/*.h'
+    s.public_header_files = 'iOS/Classes/**/*.h'
     s.dependency 'DoricCore'
 end
