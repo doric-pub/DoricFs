@@ -4,24 +4,24 @@
 ##  Publish JS,Android,iOS
 ##
 ##############################################################################
+
 CURRENT_DIR=$(cd $(dirname $0); pwd)
 CURRENT_VERSION=$(cat $CURRENT_DIR/version)
 
 echo "Current version is "$CURRENT_VERSION
 
-git add version
-
-git commit -m "Modify version file ${CURRENT_VERSION}"
-
-## JS
-npm version $CURRENT_VERSION --allow-same-version
-
 ## iOS
 sed -i "" "s/\(version[ ]*= \)'[0-9 \.]*'/\1'$CURRENT_VERSION'/g" $CURRENT_DIR/DoricFs.podspec
+
+# git save
+cd $CURRENT_DIR/
 
 echo "Commit changes"
 git add .
 git commit -m "Release v${CURRENT_VERSION}"
+
+## JS
+cd $CURRENT_DIR && npm version $CURRENT_VERSION --allow-same-version
 
 git tag ${CURRENT_VERSION}
 
@@ -29,11 +29,16 @@ git push
 
 git push --tags
 
+npm install doric-cli -g
+
+npm install
+
+cd example && npm install && cd ..
+
+
 echo "Publish JS"
-cd $CURRENT_DIR && npm publish
-
+cd $CURRENT_DIR/ && npm publish 
 echo "Publish Android"
-cd $CURRENT_DIR/android && ./gradlew clean publish
-
+cd $CURRENT_DIR/example/android && ./gradlew clean :lib:uploadArchives 
 echo "Publish iOS"
-cd $CURRENT_DIR && pod trunk push DoricFs.podspec --allow-warnings
+cd $CURRENT_DIR && pod trunk push DoricBarcodeScanner.podspec --allow-warnings

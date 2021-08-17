@@ -1,11 +1,7 @@
 name: Release
 on:
-  #  push:
-  #    tags:
-  #      - 'v*.*.*'
   release:
-    types:
-      - published
+    types: [published]
 jobs:
   build:
     runs-on: macos-latest
@@ -34,10 +30,6 @@ jobs:
         run: |
           echo ${GITHUB_REF:11}>version
           echo "Current Version is "${GITHUB_REF:11}
-      - name: Install doric-cli
-        run: |
-          npm install doric-cli -g
-          npm install
       - name: Publish
         run: |
           sh publish.sh
