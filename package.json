@@ -1,6 +1,6 @@
 {
   "name": "doric-fs",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "main": "dist/bundle_fs.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,8 +12,7 @@
     "prepublish": "npm run build"
   },
   "license": "Apache-2.0",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "doric": ">=0.8.26",
     "doric-cli": ">=0.8.26",
