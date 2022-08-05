@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'DoricFs'
-    s.version          = '0.2.7'
+    s.version          = '0.2.8'
     s.summary          = 'Doric extension for FS'
   
   
