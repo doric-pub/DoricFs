@@ -236,7 +236,7 @@
         self.currentPromise = promise;
         NSArray *uti = dic[@"uniformTypeIdentifiers"];
         UIDocumentPickerViewController *documentPickerViewController = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:uti
-                                                                                                                              inMode:UIDocumentPickerModeImport];
+                                                                                                                              inMode:UIDocumentPickerModeOpen];
         documentPickerViewController.delegate = self;
         [((UIViewController *) (self.doricContext.navigator)).navigationController presentViewController:documentPickerViewController
                                                                                                 animated:YES

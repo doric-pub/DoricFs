@@ -39,15 +39,11 @@ class DoricFs extends Panel {
         textColor: Color.WHITE,
         onClick: async () => {
           number.text = `${++count}`;
-          const documentPath = await fs.getDocumentsDir();
-          const dir = `${documentPath}/${count}`;
-          await fs.mkdir(dir);
-          await fs.writeFile(
-            `${dir}/${count}`,
-            `File location:${dir}/${count}`
-          );
-          const content = await fs.readFile(`${dir}/${count}`);
-          modal(context).alert(content);
+          const documentPath = await fs.choose({
+            uniformTypeIdentifiers: ["public.folder"],
+            mimeType: ""
+          })
+          modal(context).alert(documentPath);
         },
         layoutConfig: layoutConfig().just(),
         width: 200,
