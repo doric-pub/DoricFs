@@ -42,14 +42,18 @@ export function fs(context: BridgeContext) {
       return context.callNative("fs", "readFile", path) as Promise<string>;
     },
 
-    writeFile: (path: PathLike, content: string) => {
+    readBinaryFile: (path: PathLike) => {
+      return context.callNative("fs", "readFile", path) as Promise<ArrayBuffer>;
+    },
+
+    writeFile: (path: PathLike, content: string | ArrayBuffer) => {
       return context.callNative("fs", "writeFile", {
         path,
         content,
       }) as Promise<void>;
     },
 
-    appendFile: (path: PathLike, content: string) => {
+    appendFile: (path: PathLike, content: string | ArrayBuffer) => {
       return context.callNative("fs", "appendFile", {
         path,
         content,

@@ -146,12 +146,52 @@
     });
 }
 
+
+- (void)readBinaryFile:(NSString *)paramPath withPromise:(DoricPromise *)promise {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *path = paramPath;
+        if ([path hasPrefix:@"file://"]) {
+            NSError *error;
+            NSURL *URL = [NSURL URLWithString:path];
+            NSData *data = [NSData dataWithContentsOfURL:URL options:NSDataReadingUncached error:&error];
+            if (error) {
+                [promise reject:error.localizedDescription];
+            } else {
+                [promise resolve:data];
+            }
+        } else {
+            if ([path hasPrefix:@"assets"]) {
+                path = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:[path substringFromIndex:@"assets://".length]];
+            }
+            BOOL isDirectory = NO;
+            BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
+
+            if (exists) {
+                if (!isDirectory) {
+                    NSData *data = [[NSFileManager defaultManager] contentsAtPath:path];
+                    [promise resolve:data];
+                } else {
+                    [promise reject:[NSString stringWithFormat:@"File %@ is not file", path]];
+                }
+            } else {
+                [promise reject:[NSString stringWithFormat:@"File %@ does not exist", path]];
+            }
+        }
+    });
+}
+
 - (void)writeFile:(NSDictionary *)params withPromise:(DoricPromise *)promise {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSError *error;
         NSString *path = params[@"path"];
-        NSString *content = params[@"content"];
-        [content writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];
+        id content = params[@"content"];
+        if ([content isKindOfClass: NSString.class]) {
+            [(NSString *)content writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];
+        } else if ([content isKindOfClass: NSData.class]) {
+            [(NSData *)content writeToFile:path atomically:YES];
+        } else {
+            [promise reject:@"Donot support class type"];
+        }
         if (error) {
             [promise reject:error.localizedDescription];
         } else {
@@ -164,14 +204,22 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSError *error;
         NSString *path = params[@"path"];
-        NSString *content = params[@"content"];
+        id content = params[@"content"];
         BOOL isDirectory = NO;
         BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
         if (exists) {
             if (!isDirectory) {
+                NSData *stringData;
+                if ([content isKindOfClass: NSString.class]) {
+                    stringData = [content dataUsingEncoding:NSUTF8StringEncoding];
+                } else if ([content isKindOfClass: NSData.class]){
+                    stringData = content;
+                } else {
+                     [promise reject:error.localizedDescription];
+                     return;
+                }
                 NSFileHandle *fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:path];
                 [fileHandle seekToEndOfFile];
-                NSData *stringData = [content dataUsingEncoding:NSUTF8StringEncoding];
                 [fileHandle writeData:stringData];
                 [fileHandle closeFile];
             } else {
