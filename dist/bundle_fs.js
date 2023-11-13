@@ -28,6 +28,9 @@ function fs(context) {
         readFile: (path) => {
             return context.callNative("fs", "readFile", path);
         },
+        readBinaryFile: (path) => {
+            return context.callNative("fs", "readFile", path);
+        },
         writeFile: (path, content) => {
             return context.callNative("fs", "writeFile", {
                 path,

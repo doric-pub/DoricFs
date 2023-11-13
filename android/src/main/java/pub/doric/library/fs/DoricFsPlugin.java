@@ -263,24 +263,88 @@ public class DoricFsPlugin extends DoricJavaPlugin {
     }
 
     @DoricMethod
-    public void writeFile(JSObject jsObject, DoricPromise promise) {
-        FileWriter fileWriter = null;
+    public void readBinaryFile(JSString path, DoricPromise promise) {
+        String pathValue = path.value();
+
+        InputStream inputStream = null;
         try {
-            JSString path = jsObject.getProperty("path").asString();
-            JSString content = jsObject.getProperty("content").asString();
-            fileWriter = new FileWriter(path.value(), false);
-            fileWriter.write(content.value());
-            promise.resolve(new JavaValue());
+            if (pathValue.startsWith("content://")) {
+                Uri uri = Uri.parse(pathValue);
+                ContentResolver resolver = Doric.application().getContentResolver();
+                inputStream = resolver.openInputStream(uri);
+            } else if (pathValue.startsWith("assets://")) {
+                String assetPath = pathValue.substring("assets://".length());
+                AssetManager assetManager = Doric.application().getAssets();
+                inputStream = assetManager.open(assetPath);
+            } else {
+                File file = new File(pathValue);
+                if (!file.exists()) {
+                    promise.reject(new JavaValue(String.format("File %s does not exists", file.getAbsolutePath())));
+                    return;
+                }
+                if (!file.isFile()) {
+                    promise.reject(new JavaValue(String.format("File %s is not file", file.getAbsolutePath())));
+                    return;
+                }
+                inputStream = new FileInputStream(file);
+            }
+            byte[] buffer = new byte[inputStream.available()];
+            inputStream.read(buffer);
+            promise.resolve(new JavaValue(buffer));
         } catch (Exception e) {
             promise.reject(new JavaValue(e.getLocalizedMessage()));
         } finally {
-            if (fileWriter != null) {
+            if (inputStream != null) {
                 try {
-                    fileWriter.close();
+                    inputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    @DoricMethod
+    public void writeFile(JSObject jsObject, DoricPromise promise) {
+        JSString path = jsObject.getProperty("path").asString();
+        JSValue content = jsObject.getProperty("content");
+        if (content.isString()) {
+            FileWriter fileWriter = null;
+            try {
+                fileWriter = new FileWriter(path.value(), false);
+                JSString contentString = content.asString();
+                fileWriter.write(contentString.value());
+                promise.resolve(new JavaValue());
+            } catch (Exception e) {
+                promise.reject(new JavaValue(e.getLocalizedMessage()));
+            } finally {
+                if (fileWriter != null) {
+                    try {
+                        fileWriter.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } else if (content.isArrayBuffer()) {
+            FileOutputStream fileOutputStream = null;
+            try {
+                fileOutputStream = new FileOutputStream(path.value());
+                fileOutputStream.write(content.asArrayBuffer().value());
+                promise.resolve(new JavaValue());
+            } catch (Exception e) {
+                promise.reject(new JavaValue(e.getLocalizedMessage()));
+            } finally {
+                if (fileOutputStream != null) {
+                    try {
+                        fileOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } else {
+            promise.reject(new JavaValue("Unsupported type"));
         }
     }
 
